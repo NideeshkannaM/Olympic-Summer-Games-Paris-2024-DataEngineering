@@ -1,0 +1,113 @@
+{
+    "name": "pl_git_to_adls",
+    "properties": {
+        "activities": [
+            {
+                "name": "Set GitHubPath",
+                "type": "SetVariable",
+                "dependsOn": [],
+                "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "variableName": "GitHubPath",
+                    "value": "NideeshkannaM/Olympic-Summer-Games-Paris-2024-DataEngineering/refs/heads/feature/development/raw_data/"
+                }
+            },
+            {
+                "name": "Copy Data to ADLS",
+                "type": "Copy",
+                "dependsOn": [
+                    {
+                        "activity": "Set GitHubPath",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "source": {
+                        "type": "DelimitedTextSource",
+                        "storeSettings": {
+                            "type": "HttpReadSettings",
+                            "requestMethod": "GET"
+                        },
+                        "formatSettings": {
+                            "type": "DelimitedTextReadSettings"
+                        }
+                    },
+                    "sink": {
+                        "type": "DelimitedTextSink",
+                        "storeSettings": {
+                            "type": "AzureBlobFSWriteSettings",
+                            "copyBehavior": "PreserveHierarchy"
+                        },
+                        "formatSettings": {
+                            "type": "DelimitedTextWriteSettings",
+                            "quoteAllText": true,
+                            "fileExtension": ".txt"
+                        }
+                    },
+                    "enableStaging": false,
+                    "translator": {
+                        "type": "TabularTranslator",
+                        "typeConversion": true,
+                        "typeConversionSettings": {
+                            "allowDataTruncation": true,
+                            "treatBooleanAsNumber": false
+                        }
+                    }
+                },
+                "inputs": [
+                    {
+                        "referenceName": "CSVFromHTTP",
+                        "type": "DatasetReference",
+                        "parameters": {
+                            "filename": {
+                                "value": "@concat(variables('GitHubPath'), '/', pipeline().parameters.FileName)",
+                                "type": "Expression"
+                            }
+                        }
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "csv_adls",
+                        "type": "DatasetReference",
+                        "parameters": {
+                            "Container": "paris-olympic-2024",
+                            "FilePath": "raw-data",
+                            "FileName": {
+                                "value": "@pipeline().parameters.FileName",
+                                "type": "Expression"
+                            }
+                        }
+                    }
+                ]
+            }
+        ],
+        "parameters": {
+            "FileName": {
+                "type": "string"
+            }
+        },
+        "variables": {
+            "GitHubPath": {
+                "type": "String"
+            }
+        },
+        "annotations": [],
+        "lastPublishTime": "2025-08-01T11:58:27Z"
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}
