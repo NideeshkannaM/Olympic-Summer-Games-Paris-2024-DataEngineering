@@ -32,6 +32,7 @@
 ---
 
 ## 📊 Sample Visual Outputs
+
 1) Country-Wise Gender-Wise Medal Count Visualization
 <img width="1382" height="582" alt="image" src="https://github.com/user-attachments/assets/a81dfe71-50f2-4bde-945d-04967637fe5e" />
 
